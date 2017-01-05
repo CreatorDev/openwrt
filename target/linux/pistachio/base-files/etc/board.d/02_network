@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Copyright (C) 2016 OpenWrt.org
+#
+
+. /lib/functions/uci-defaults.sh
+. /lib/pistachio.sh
+
+board_config_update
+
+board=$(pistachio_board_name)
+
+case "$board" in
+"Marduk")
+	lan_mac=$(mtd_get_mac_ascii uEnv ethaddr)
+	[ -n "$lan_mac" ] && ucidef_set_interface_macaddr lan $lan_mac
+	ucidef_set_interface_lan "eth0" "dhcp"
+
+	;;
+esac
+
+
+board_config_flush
+
+exit 0
