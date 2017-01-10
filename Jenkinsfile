@@ -14,7 +14,6 @@
 def customFeeds = [
     ['packages', 'packages', 'https://github.com/CreatorDev'],
     ['ci40', 'ci40-platform-feed', 'https://github.com/CreatorDev'],
-    ['creator', 'creator-feed', 'https://github.com/CreatorDev'],
 ]
 def feedParams = []
 for (feed in customFeeds) {
