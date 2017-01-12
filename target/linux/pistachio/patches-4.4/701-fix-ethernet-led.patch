@@ -1,0 +1,24 @@
+Index: linux-4.4.14/drivers/net/phy/micrel.c
+===================================================================
+--- linux-4.4.14.orig/drivers/net/phy/micrel.c
++++ linux-4.4.14/drivers/net/phy/micrel.c
+@@ -261,6 +261,7 @@ static int kszphy_config_init(struct phy
+ 	struct kszphy_priv *priv = phydev->priv;
+ 	const struct kszphy_type *type;
+ 	int ret;
++	int temp = 0;
+ 
+ 	if (!priv)
+ 		return 0;
+@@ -284,6 +285,11 @@ static int kszphy_config_init(struct phy
+ 	if (priv->led_mode >= 0)
+ 		kszphy_setup_led(phydev, type->led_mode_reg, priv->led_mode);
+ 
++	/* disable PME */
++	temp = phy_read(phydev, 0x16);
++	temp &= ~(1 << 15);
++	phy_write(phydev, 0x16, temp);
++
+ 	return 0;
+ }
+ 
