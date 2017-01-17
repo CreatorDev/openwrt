@@ -33,7 +33,7 @@ DEVICE_VARS += DEVICE_DTS_DIR DEVICE_DTS KERNEL_IN_UBI
 
 define Device/marduk_ca8210
 	PROFILES := marduk_ca8210
-	DEVICE_DTS := pistachio/pistachio_$(PROFILE)
+	DEVICE_DTS := pistachio/pistachio_marduk_ca8210
 	BLOCKSIZE := 256KiB
 	PAGESIZE := 4KiB
 endef
@@ -41,7 +41,7 @@ TARGET_DEVICES += marduk_ca8210
 
 define Device/marduk_cc2520
 	PROFILES := marduk_cc2520
-	DEVICE_DTS := pistachio/pistachio_$(PROFILE)
+	DEVICE_DTS := pistachio/pistachio_marduk_cc2520
 	BLOCKSIZE := 256KiB
 	PAGESIZE := 4KiB
 endef
