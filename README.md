@@ -88,7 +88,7 @@ For more details please refer to our [detailed build guide](https://docs.creator
 and the [OpenWrt build system wiki]("http://wiki.openwrt.org/doc/howto/build").
 
 ### Flash it
-See our [upgrade guide](https://docs.creatordev.io/ci40/guides/openwrt-platform/#system-upgrade)
+See our [upgrade guide](https://docs.creatordev.io/ci40/guides/openwrt-platform/#upgrading-your-ci40-software)
 
 ### Use it
 See our [quick start guide](https://docs.creatordev.io/ci40/guides/quick-start-guide/)
