@@ -70,6 +70,12 @@ node('docker && imgtec') {  // Only run on internal slaves as build takes a lot 
             // Default config
             sh "cp ${params.CONFIG_FILE?.trim()} .config"
 
+            // Package server config
+            if (params.VERSION) {
+                echo 'Updating server location for package downloads'
+                sh "sed -i '/^CONFIG_VERSION_REPO/s/latest/ci40-${params.VERSION}/' .config"
+            }
+
             // Add development config
             echo 'Enabling development config'
             sh 'echo \'' \
