@@ -32,6 +32,8 @@ define Package/wpan-tools/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/iwpan $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wpan-ping/wpan-ping $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/lib/netifd/proto/
+	$(CP) ./files/lowpan.sh $(1)/lib/netifd/proto/
 endef
 
 $(eval $(call BuildPackage,wpan-tools))
