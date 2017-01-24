@@ -138,7 +138,7 @@ node('docker && imgtec') {  // Only run on internal slaves as build takes a lot 
             sh 'cp feeds.conf.default feeds.conf'
             for (feed in customFeeds) {
                 if (params."OVERRIDE_${feed[0].toUpperCase()}"?.trim()){
-                    dir("feed-${feed[0]}") {
+                    dir("feed-${feed[1]}") {
                         checkout([
                             $class: 'GitSCM',
                             branches: [[name: env."OVERRIDE_${feed[0].toUpperCase()}"]],
