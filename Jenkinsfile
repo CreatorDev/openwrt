@@ -5,7 +5,7 @@
  *
  * Configure as needed, pull in the feeds and run the build. Allows
  * overridding feeds listed using build parameters.
- * 
+ *
  * Note this script needs some extra Jenkins permissions to be
  * approved.
  */
@@ -14,12 +14,11 @@
 def customFeeds = [
     ['packages', 'packages', 'https://github.com/CreatorDev'],
     ['ci40', 'ci40-platform-feed', 'https://github.com/CreatorDev'],
-    ['creator', 'creator-feed', 'https://github.com/CreatorDev'],
 ]
 def feedParams = []
 for (feed in customFeeds) {
     feedParams.add(string(defaultValue: '', description: 'Branch/commmit/PR to override feed. \
-        (Can be a PR using PR-< id >)', name: "OVERRIDE_${feed[1].toUpperCase()}"))
+        (Can be a PR using PR-< id >)', name: "OVERRIDE_${feed[0].toUpperCase()}"))
 }
 
 properties([
@@ -71,6 +70,12 @@ node('docker && imgtec') {  // Only run on internal slaves as build takes a lot 
              + 'CONFIG_TARGET_pistachio_marduk_marduk=y\n' \
              + '\' >> .config'
 
+            // Package server config
+            if (params.VERSION) {
+                echo 'Updating server location for package downloads'
+                sh "sed -i '/^CONFIG_VERSION_REPO/s/latest/ci40-${params.VERSION}/' .config"
+            }
+
             // Add development config
             echo 'Enabling development config'
             sh 'echo \'' \
@@ -89,7 +94,6 @@ node('docker && imgtec') {  // Only run on internal slaves as build takes a lot 
             }
 
             // Build all (for opkg)
-            // TODO grab vault creds and mod config to use OPKGSMIME
             if (params.ALL_PACKAGES){
                 echo 'Enabling all user and kernel packages'
                 sh 'echo \'' \
@@ -97,40 +101,20 @@ node('docker && imgtec') {  // Only run on internal slaves as build takes a lot 
                  + '\' >> .config'
             }
 
-            // Boardfarm-able
-            // TODO work out which ones we actually have
-            echo 'Enabling usb ethernet adapters modules (for boardfarm testing)'
-            sh 'echo \'' \
-             + 'CONFIG_PACKAGE_kmod-usb-net=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-asix=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-cdc-eem=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-cdc-ether=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-cdc-mbim=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-cdc-ncm=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-cdc-subset=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-dm9601-ether=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-hso=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-huawei-cdc-ncm=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-ipheth=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-kalmia=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-kaweth=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-mcs7830=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-pegasus=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-qmi-wwa=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-rndis=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-rtl8150=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-rtl8152=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-sierrawireless=y\n' \
-             + 'CONFIG_PACKAGE_kmod-usb-net-smsc95xx=y\n' \
-             + '\' >> .config'
+            // Add all required feeds to default config
+            for (feed in customFeeds) {
+                sh "grep -q 'src-.* ${feed[0]} .*' feeds.conf.default || \
+                    echo 'src-git ${feed[0]} ${feed[2]}/${feed[1]}.git' >> feeds.conf.default"
+            }
 
             // If specified override each feed with local clone
+            sh 'cp feeds.conf.default feeds.conf'
             for (feed in customFeeds) {
-                if (params."OVERRIDE_${feed[1].toUpperCase()}"?.trim()){
+                if (params."OVERRIDE_${feed[0].toUpperCase()}"?.trim()){
                     dir("feed-${feed[1]}") {
                         checkout([
                             $class: 'GitSCM',
-                            branches: [[name: env."OVERRIDE_${feed[1].toUpperCase()}"]],
+                            branches: [[name: env."OVERRIDE_${feed[0].toUpperCase()}"]],
                             userRemoteConfigs: [[
                                 refspec: '+refs/pull/*/head:refs/remotes/origin/PR-* \
                                     +refs/heads/*:refs/remotes/origin/*',
@@ -138,28 +122,36 @@ node('docker && imgtec') {  // Only run on internal slaves as build takes a lot 
                             ]]
                         ])
                     }
-                    // Replace (or add if not exists) feed with local clone
-                    sh "grep -q 'src-.* ${feed[0]} .*' feeds.conf.default && \
-                        sed -i 's|^.*\\s\\(${feed[0]}\\)\\s.*\$|src-link \\1 ../feed-${feed[1]}|g' feeds.conf.default || \
-                        echo 'src-link ${feed[0]} ../feed-${feed[1]}' >> feeds.conf.default"
+                    sh "sed -i 's|^src-git ${feed[0]} .*|src-link ${feed[0]} ../feed-${feed[1]}|g' feeds.conf"
                 }
             }
-            sh 'cat .config feeds.conf.default'
+            sh 'cat feeds.conf.default feeds.conf .config'
             sh 'scripts/feeds update -a && scripts/feeds install -a'
+            sh 'rm feeds.conf'
             sh 'make defconfig'
         }
         stage('Build') {
-            // Attempt to build quickly and reliably
-            try {
-                sh "make -j4 V=s ${params.ALL_PACKAGES ? 'IGNORE_ERRORS=m' : ''}"
-            } catch (hudson.AbortException err) {
-                // TODO BUG JENKINS-28822
-                if(err.getMessage().contains('script returned exit code 143')) {
-                    throw err
+            // Add opkg signing key
+            withCredentials([
+                [$class: 'FileBinding', credentialsId: 'opkg-build-private-key', variable: 'PRIVATE_KEY'],
+                [$class: 'FileBinding', credentialsId: 'opkg-build-public-key', variable: 'PUBLIC_KEY'],
+            ]){
+                // Attempt to build quickly and reliably
+                try {
+                    sh "cp ${env.PRIVATE_KEY} ${WORKSPACE}/key-build"
+                    sh "cp ${env.PUBLIC_KEY} ${WORKSPACE}/key-build.pub"
+                    sh "make -j4 V=s ${params.ALL_PACKAGES ? 'IGNORE_ERRORS=m' : ''}"
+                } catch (hudson.AbortException err) {
+                    // TODO BUG JENKINS-28822
+                    if(err.getMessage().contains('script returned exit code 143')) {
+                        throw err
+                    }
+                    echo 'Parallel build failed, attempting to continue in  single threaded mode'
+                    sh "make -j1 V=s ${params.ALL_PACKAGES ? 'IGNORE_ERRORS=m' : ''}"
+                } finally {
+                    sh "rm ${WORKSPACE}/key-build*"
                 }
-                echo 'Parallel build failed, attempting to continue in  single threaded mode'
             }
-            sh "make -j1 V=s ${params.ALL_PACKAGES ? 'IGNORE_ERRORS=m' : ''}"
         }
 
         stage('Upload') {
@@ -171,8 +163,3 @@ node('docker && imgtec') {  // Only run on internal slaves as build takes a lot 
         }
     }
 }
-//node('boardfarm') {
-    stage('Intergration test') {
-        //TODO run the boardfarm test
-    }
-//}
