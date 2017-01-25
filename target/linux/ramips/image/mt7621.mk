@@ -143,6 +143,7 @@ define Device/wf-2881
   FILESYSTEMS := squashfs
   IMAGE_SIZE := 132382720
   KERNEL := $(KERNEL_DTB) | pad-offset 131072 64 | uImage lzma
+  UBINIZE_OPTS := -E 5
   IMAGE/sysupgrade.bin := append-kernel | append-ubi | check-size $$$$(IMAGE_SIZE)
   DEVICE_TITLE := NETIS WF-2881
   DEVICE_PACKAGES := kmod-usb3 kmod-ledtrig-usbdev

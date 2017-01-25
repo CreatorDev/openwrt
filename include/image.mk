@@ -399,8 +399,9 @@ define Build/append-ubi
 		$(if $(KERNEL_IN_UBI),--kernel $(word 1,$^)) \
 		$(word 2,$^) \
 		$@.tmp \
-		-p $(BLOCKSIZE) -m $(PAGESIZE) -E 5 \
-		$(if $(SUBPAGESIZE),-s $(SUBPAGESIZE))
+		-p $(BLOCKSIZE) -m $(PAGESIZE) \
+		$(if $(SUBPAGESIZE),-s $(SUBPAGESIZE)) \
+		$(UBINIZE_OPTS)
 	cat $@.tmp >> $@
 	rm $@.tmp
 endef
@@ -468,16 +469,20 @@ define Device/Init
   KERNEL_NAME := vmlinux
   KERNEL_DEPENDS :=
   KERNEL_SIZE :=
+  UBINIZE_OPTS :=
 
   FILESYSTEMS := $(TARGET_FILESYSTEMS)
 endef
+
+DEFAULT_DEVICE_VARS := \
+  DEVICE_NAME KERNEL KERNEL_INITRAMFS KERNEL_INITRAMFS_IMAGE UBINIZE_OPTS
 
 define Device/ExportVar
   $(1) : $(2):=$$($(2))
 
 endef
 define Device/Export
-  $(foreach var,$(DEVICE_VARS) DEVICE_NAME KERNEL KERNEL_INITRAMFS KERNEL_INITRAMFS_IMAGE,$(call Device/ExportVar,$(1),$(var)))
+  $(foreach var,$(DEVICE_VARS) $(DEFAULT_DEVICE_VARS),$(call Device/ExportVar,$(1),$(var)))
   $(1) : FILESYSTEM:=$(2)
 endef
 
