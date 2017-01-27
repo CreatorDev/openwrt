@@ -1,0 +1,64 @@
+From 9c83d06a126ee5d8c357456ade2d3b533c4065de Mon Sep 17 00:00:00 2001
+From: Govindraj Raja <Govindraj.Raja@imgtec.com>
+Date: Mon, 1 Feb 2016 16:24:47 +0000
+Subject: [PATCH] pistachio: 4.4 kernel migration fixup.
+
+fixup to migrate to 4.4 kernel.
+
+Change-Id: Ica10f1af38c8f810401fbd8e56272c5824457910
+Signed-off-by: Govindraj Raja <Govindraj.Raja@imgtec.com>
+---
+ drivers/clk/pistachio/clk-pll.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/clk/pistachio/clk-pll.c b/drivers/clk/pistachio/clk-pll.c
+index 55d8d48..001ec27 100644
+--- a/drivers/clk/pistachio/clk-pll.c
++++ b/drivers/clk/pistachio/clk-pll.c
+@@ -66,10 +66,8 @@
+ #define MAX_OUTPUT_FRAC			1600000000UL
+ 
+ /* Fractional PLL operating modes */
+-enum pll_mode {
+-	PLL_MODE_FRAC,
+-	PLL_MODE_INT,
+-};
++#define PLL_MODE_INT			1
++#define PLL_MODE_FRAC			0
+ 
+ struct pistachio_clk_pll {
+ 	struct clk_hw hw;
+@@ -105,7 +103,7 @@ static inline struct pistachio_clk_pll *to_pistachio_pll(struct clk_hw *hw)
+ 	return container_of(hw, struct pistachio_clk_pll, hw);
+ }
+ 
+-static inline enum pll_mode pll_frac_get_mode(struct clk_hw *hw)
++static inline u32 pll_frac_get_mode(struct clk_hw *hw)
+ {
+ 	struct pistachio_clk_pll *pll = to_pistachio_pll(hw);
+ 	u32 val;
+@@ -114,7 +112,7 @@ static inline enum pll_mode pll_frac_get_mode(struct clk_hw *hw)
+ 	return val ? PLL_MODE_INT : PLL_MODE_FRAC;
+ }
+ 
+-static inline void pll_frac_set_mode(struct clk_hw *hw, enum pll_mode mode)
++static inline void pll_frac_set_mode(struct clk_hw *hw, u32 mode)
+ {
+ 	struct pistachio_clk_pll *pll = to_pistachio_pll(hw);
+ 	u32 val;
+@@ -283,12 +281,6 @@ static int pll_gf40lp_frac_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	else
+ 		pll_frac_set_mode(hw, PLL_MODE_INT);
+ 
+-	/* set operating mode */
+-	if (params->frac)
+-		pll_frac_set_mode(hw, PLL_MODE_FRAC);
+-	else
+-		pll_frac_set_mode(hw, PLL_MODE_INT);
+-
+ 	if (enabled)
+ 		pll_lock(pll);
+ 
+-- 
+2.7.4
+
