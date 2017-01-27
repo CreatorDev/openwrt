@@ -1,0 +1,73 @@
+From 551359230b1caf63d3788b01a0d34c9cfa7f711a Mon Sep 17 00:00:00 2001
+From: Francois Berder <francois.berder@imgtec.com>
+Date: Mon, 23 Jan 2017 17:09:33 +0000
+Subject: [PATCH 1/2] spi: img-spfi: Implement quad-mode for transmit
+
+This requires changes to the SPFI driver consisting of setting
+the TX_RX bit which lets the state machine know that the command
+which is going to be sent to the flash is a TX (set)/RX(cleared)
+command. This helps with the scenario in which we have both a
+command transfer (command, address, dummy) which will be pending(TX),
+and a TX data transfer, which was problematic before. This bit of
+the control register is flash specific and has no significance in
+SPI traditional sense.
+
+Change-Id: Ic21752a6ae8a304f52fd46d9ffebd90c93b388c8
+Signed-off-by: Ionela Voinescu <ionela.voinescu@imgtec.com>
+---
+ drivers/spi/spi-img-spfi.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
+index e67664b..37b0d36 100644
+--- a/drivers/spi/spi-img-spfi.c
++++ b/drivers/spi/spi-img-spfi.c
+@@ -41,6 +41,7 @@
+ #define SPFI_CONTROL_SEND_DMA			BIT(10)
+ #define SPFI_CONTROL_GET_DMA			BIT(9)
+ #define SPFI_CONTROL_SE				BIT(8)
++#define SPFI_CONTROL_TX_RX			BIT(1)
+ #define SPFI_CONTROL_TMODE_SHIFT		5
+ #define SPFI_CONTROL_TMODE_MASK			0x7
+ #define SPFI_CONTROL_TMODE_SINGLE		0
+@@ -52,7 +53,7 @@
+ #define SPFI_TRANSACTION_TSIZE_SHIFT		16
+ #define SPFI_TRANSACTION_TSIZE_MASK		0xffff
+ #define SPFI_TRANSACTION_CMD_SHIFT		13
+-#define SPFI_TRANSACTION_CMD_MASK		0x1
++#define SPFI_TRANSACTION_CMD_MASK		0x7
+ #define SPFI_TRANSACTION_ADDR_SHIFT		10
+ #define SPFI_TRANSACTION_ADDR_MASK		0x7
+ 
+@@ -577,14 +578,6 @@ static void img_spfi_config(struct spi_master *master, struct spi_device *spi,
+ 	} else {
+ 		spfi->complete = true;
+ 		if (is_pending) {
+-			if (xfer->tx_buf) {
+-				/* Finish pending transfer first for transmit */
+-				spfi_start(spfi);
+-				spfi_wait_all_done(spfi);
+-				spfi_writel(spfi, spfi_readl(spfi, SPFI_CONTROL) &
+-				~SPFI_CONTROL_SPFI_EN, SPFI_CONTROL);
+-				transact = 0;
+-			}
+ 			/* Keep setup from pending transfer */
+ 			transact |= ((xfer->len & SPFI_TRANSACTION_TSIZE_MASK) <<
+ 				SPFI_TRANSACTION_TSIZE_SHIFT);
+@@ -603,8 +596,12 @@ static void img_spfi_config(struct spi_master *master, struct spi_device *spi,
+ 	 */
+ 	if ((xfer->tx_buf) || is_pending)
+ 		val |= SPFI_CONTROL_SEND_DMA;
+-	if (xfer->rx_buf)
++	if (xfer->tx_buf)
++		val |= SPFI_CONTROL_TX_RX;
++	if (xfer->rx_buf) {
+ 		val |= SPFI_CONTROL_GET_DMA;
++		val &= ~SPFI_CONTROL_TX_RX;
++	}
+ 	val &= ~(SPFI_CONTROL_TMODE_MASK << SPFI_CONTROL_TMODE_SHIFT);
+ 	if (xfer->tx_nbits == SPI_NBITS_DUAL ||
+ 	    xfer->rx_nbits == SPI_NBITS_DUAL)
+-- 
+2.7.4
+

@@ -1,0 +1,33 @@
+From 9b41bcaf99e1ae09d0fde5e6f90cad94d52cc344 Mon Sep 17 00:00:00 2001
+From: Francois Berder <francois.berder@imgtec.com>
+Date: Fri, 13 Jan 2017 17:48:43 +0000
+Subject: [PATCH] spi: spidev: Increase default value of bufsize to 65535
+
+It was not possible to change the parameter bufsiz while loading
+the spidev driver because OpenWRT does not support adding parameters
+to AutoProbe.
+The spi-img-spfi driver supports transfer length up to 65535 bytes
+but spidev default limit is 4096 bytes. This commit changes the limit
+of spidev to match the limit of spi-img-spfi driver.
+
+Signed-off-by: Francois Berder <francois.berder@imgtec.com>
+---
+ drivers/spi/spidev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index 5fb06a7..40592e6 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -89,7 +89,7 @@ struct spidev_data {
+ static LIST_HEAD(device_list);
+ static DEFINE_MUTEX(device_list_lock);
+ 
+-static unsigned bufsiz = 4096;
++static unsigned bufsiz = 65535;
+ module_param(bufsiz, uint, S_IRUGO);
+ MODULE_PARM_DESC(bufsiz, "data bytes in biggest supported SPI message");
+ 
+-- 
+2.7.4
+
