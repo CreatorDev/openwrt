@@ -1,0 +1,36 @@
+From e55a5312be83ffef275ca15d729629aef5ea475c Mon Sep 17 00:00:00 2001
+From: Will Thomas <will.thomas@imgtec.com>
+Date: Fri, 5 Aug 2016 14:00:15 +0100
+Subject: crypto: img-hash - Fix hash request context
+
+Move 0 length buffer to end of structure to stop overwriting
+fallback request data. This doesn't cause a bug itself as the
+buffer is never used alongside the fallback but should be
+changed.
+
+Signed-off-by: Will Thomas <will.thomas@imgtec.com>
+Reviewed-by: James Hartley <james.hartley@imgtec.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+---
+ drivers/crypto/img-hash.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/crypto/img-hash.c b/drivers/crypto/img-hash.c
+index e5c941b..de2b86e 100644
+--- a/drivers/crypto/img-hash.c
++++ b/drivers/crypto/img-hash.c
+@@ -102,8 +102,10 @@ struct img_hash_request_ctx {
+ 	unsigned long		op;
+ 
+ 	size_t			bufcnt;
+-	u8 buffer[0] __aligned(sizeof(u32));
+ 	struct ahash_request	fallback_req;
++
++	/* Zero length buffer must remain last member of struct */
++	u8 buffer[0] __aligned(sizeof(u32));
+ };
+ 
+ struct img_hash_ctx {
+-- 
+2.6.2
+
