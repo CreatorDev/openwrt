@@ -1,0 +1,30 @@
+From baf35fa134e9b545f540e7d2d36e24c8d4d5f5fb Mon Sep 17 00:00:00 2001
+From: Will Thomas <will.thomas@imgtec.com>
+Date: Fri, 5 Aug 2016 14:00:14 +0100
+Subject: crypto: img-hash - Fix null pointer exception
+
+Sporadic null pointer exceptions came from here. Fix them.
+
+Signed-off-by: Will Thomas <will.thomas@imgtec.com>
+Reviewed-by: James Hartley <james.hartley@imgtec.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+---
+ drivers/crypto/img-hash.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/crypto/img-hash.c b/drivers/crypto/img-hash.c
+index 68e8aa9..e5c941b 100644
+--- a/drivers/crypto/img-hash.c
++++ b/drivers/crypto/img-hash.c
+@@ -361,7 +361,7 @@ static void img_hash_dma_task(unsigned long d)
+ 	size_t nbytes, bleft, wsend, len, tbc;
+ 	struct scatterlist tsg;
+ 
+-	if (!ctx->sg)
++	if (!hdev->req || !ctx->sg)
+ 		return;
+ 
+ 	addr = sg_virt(ctx->sg);
+-- 
+2.6.2
+

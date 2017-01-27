@@ -1,0 +1,32 @@
+From 2b1fb41357fea6ba83a23489606f663a96b2bf01 Mon Sep 17 00:00:00 2001
+From: James Hartley <james.hartley@imgtec.com>
+Date: Fri, 5 Aug 2016 14:00:19 +0100
+Subject: crypto: img-hash - log a successful probe
+
+Currently the probe function only emits an output on success
+when debug is specifically enabled. It would be more useful
+if this happens by default.
+
+Signed-off-by: James Hartley <james.hartley@imgtec.com>
+Reviewed-by: Will Thomas <will.thomas@imgtec.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+---
+ drivers/crypto/img-hash.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/crypto/img-hash.c b/drivers/crypto/img-hash.c
+index fd4cd51..60410d7 100644
+--- a/drivers/crypto/img-hash.c
++++ b/drivers/crypto/img-hash.c
+@@ -1031,7 +1031,7 @@ static int img_hash_probe(struct platform_device *pdev)
+ 	err = img_register_algs(hdev);
+ 	if (err)
+ 		goto err_algs;
+-	dev_dbg(dev, "Img MD5/SHA1/SHA224/SHA256 Hardware accelerator initialized\n");
++	dev_info(dev, "Img MD5/SHA1/SHA224/SHA256 Hardware accelerator initialized\n");
+ 
+ 	return 0;
+ 
+-- 
+2.6.2
+
