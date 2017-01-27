@@ -1,0 +1,30 @@
+From 352ac24f70d2bb62d8e420346a23f00d40a874b2 Mon Sep 17 00:00:00 2001
+From: Francois Berder <francois.berder@imgtec.com>
+Date: Tue, 24 Jan 2017 13:15:35 +0000
+Subject: [PATCH] mtd: m25p80: Fix compilation error
+
+OpenWRT's generic patch 045 introduces a change which is not
+compatible with patch 400 of pistachio platform. This commit
+fixes the compilation error.
+
+Signed-off-by: Francois Berder <francois.berder@imgtec.com>
+---
+ drivers/mtd/devices/m25p80.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/devices/m25p80.c b/drivers/mtd/devices/m25p80.c
+index fdfa585..102e747 100644
+--- a/drivers/mtd/devices/m25p80.c
++++ b/drivers/mtd/devices/m25p80.c
+@@ -148,7 +148,7 @@ static int m25p80_read(struct spi_nor *nor, loff_t from, size_t len,
+ 		/* TODO: Support other combinations */
+ 		msg.opcode_nbits = SPI_NBITS_SINGLE;
+ 		msg.addr_nbits = SPI_NBITS_SINGLE;
+-		msg.data_nbits = m25p80_rx_nbits(nor);
++		msg.data_nbits = m25p80_rx_nbits(nor->flash_read);
+ 
+ 		ret = spi_flash_read(spi, &msg);
+ 		*retlen = msg.retlen;
+-- 
+2.7.4
+
