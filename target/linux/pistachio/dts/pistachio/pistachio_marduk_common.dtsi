@@ -7,7 +7,6 @@
  */
 
 #include "pistachio.dtsi"
-#include <dt-bindings/sound/pistachio-audio.h>
 #include "pistachio_board_uboot.dtsi"
 
 / {
@@ -44,51 +43,6 @@
 		regulator-name = "internal_dac_supply";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
-	};
-
-	pistachio_audio_card {
-		compatible = "img,pistachio-audio";
-
-		clocks = <&clk_core CLK_AUDIO_PLL>,
-			 <&clk_core CLK_I2S>,
-			 <&clk_core CLK_AUDIO>;
-		clock-names = "audio_pll", "i2s_mclk", "dac_clk";
-
-		img,cr-periph = <&cr_periph>;
-		img,event-timer = <&event_timer>;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&i2s_mclk_pin>;
-
-		spdif-out {
-			cpu-dai = <&spdif_out>;
-		};
-
-		spdif-in {
-			cpu-dai = <&spdif_in>;
-		};
-
-		parallel-out {
-			cpu-dai = <&parallel_out>;
-			sound-dai = <&internal_dac>;
-		};
-
-		i2s-out {
-			cpu-dai = <&i2s_out>;
-			format = "i2s";
-		};
-
-		i2s-in {
-			cpu-dai = <&i2s_in>;
-			format = "i2s";
-
-			ak5720vt {
-				mclk = <PISTACHIO_MCLK_I2S>;
-				mclk-fs = <256>;
-				mclk-min-freq = <8192000>;
-				mclk-max-freq = <24576000>;
-			};
-		};
 	};
 
 	gpio_keys {

@@ -11,7 +11,6 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/mips-gic.h>
-#include <dt-bindings/reset/pistachio-resets.h>
 
 / {
 	compatible = "img,pistachio";
@@ -276,8 +275,6 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2s_out_pins>;
 		status = "disabled";
-		resets = <&pistachio_reset PISTACHIO_RESET_I2S_OUT>;
-		reset-names = "rst";
 		#sound-dai-cells = <0>;
 	};
 
@@ -293,8 +290,6 @@
 		assigned-clocks = <&clk_core CLK_AUDIO_DAC_DIV>;
 		assigned-clock-rates = <12288000>;
 		status = "disabled";
-		resets = <&pistachio_reset PISTACHIO_RESET_PRL_OUT>;
-		reset-names = "rst";
 		#sound-dai-cells = <0>;
 	};
 
@@ -312,8 +307,6 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&spdif_out_pin>;
 		status = "disabled";
-		resets = <&pistachio_reset PISTACHIO_RESET_SPDIF_OUT>;
-		reset-names = "rst";
 		#sound-dai-cells = <0>;
 	};
 
@@ -1055,11 +1048,6 @@
 		clocks = <&clk_periph PERIPH_CLK_SYS>;
 		clock-names = "sys";
 		#clock-cells = <1>;
-
-		pistachio_reset: reset-controller {
-			compatible = "img,pistachio-reset";
-			#reset-cells = <1>;
-		};
 	};
 
 	cr_top: clk@18149000 {
