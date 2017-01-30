@@ -29,7 +29,7 @@ properties([
             name: 'BUILD_TOOLS'),
         booleanParam(defaultValue: false, description: 'Build *all* packages for opkg',
             name: 'ALL_PACKAGES'),
-        stringParam(defaultValue: 'target/linux/pistachio/creator-platform-default-cascoda.config',
+        stringParam(defaultValue: 'target/linux/pistachio/marduk-default.config',
             description: 'Config file to use', name: "CONFIG_FILE"),
         stringParam(defaultValue: '', description: 'Set version, if blank job number will be used.',
             name: 'VERSION'),

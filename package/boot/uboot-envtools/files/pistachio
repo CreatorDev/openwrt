@@ -17,7 +17,8 @@ touch /etc/config/ubootenv
 board=$(pistachio_board_name)
 
 case "$board" in
-Marduk)
+marduk |\
+marduk_legacy)
         ubootenv_add_uci_config "/dev/mtd2" "0x0" "0x2000" "0x1000" ""
         ;;
 esac

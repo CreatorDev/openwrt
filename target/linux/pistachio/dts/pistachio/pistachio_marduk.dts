@@ -11,7 +11,7 @@
 #include "pistachio_marduk_common.dtsi"
 
 / {
-	model = "IMG Marduk - Ci40 with ca8210";
+	model = "IMG marduk - Creator Ci40 with ca8210";
 
 	/* EXT clock from ca8210 is fed to sc16is752 */
 	ca8210_ext_clk: ca8210-ext-clk {

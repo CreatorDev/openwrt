@@ -12,7 +12,7 @@
 #include "pistachio_marduk_common.dtsi"
 
 / {
-	model = "IMG Marduk - Ci40 with cc2520";
+	model = "IMG marduk_legacy - Creator Ci40 with cc2520";
 };
 
 &spfi0 {

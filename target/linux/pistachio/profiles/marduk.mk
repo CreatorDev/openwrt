@@ -5,14 +5,14 @@
 # See /LICENSE for more information.
 #
 
-define Profile/marduk_ca8210
+define Profile/marduk
     NAME:=Basic platform profile for Marduk with Cascoda ca8210
     PACKAGES:=kmod-ca8210 wpan-tools
 endef
 
-define Profile/marduk_ca8210/Description
+define Profile/marduk/Description
         Package set for basic platform support profile for Marduk with Cascoda ca8210
         board
 endef
 
-$(eval $(call Profile,marduk_ca8210))
+$(eval $(call Profile,marduk))

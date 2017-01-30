@@ -48,7 +48,7 @@ cXT200 (pistachio) - the name of the Imagination Technologies SoC that Ci40 uses
 1. Copy base config
 
     ```
-    $ cat target/linux/pistachio/creator-platform-default-cascoda.config > .config
+    $ cat target/linux/pistachio/marduk-default.config > .config
     ```
 2. Generate the default config
 
@@ -78,11 +78,11 @@ $ make V=s
 ```
 
 Once the build is completed you will find your firmware images in bin/pistachio. Example output for v0.10.5 tag:
-* openwrt-v0.10.5-pistachio-marduk-marduk-kernel.itb
-* openwrt-v0.10.5-pistachio-marduk-marduk-initramfs-kernel.itb
-* openwrt-v0.10.5-pistachio-marduk-marduk-ca8210-rootfs.tar.gz
-* openwrt-v0.10.5-pistachio-marduk-marduk-squashfs-factory.ubi
-* openwrt-v0.10.5-pistachio-marduk-marduk-squashfs-sysupgrade.tar
+* openwrt-v0.10.5-pistachio-marduk-kernel.itb
+* openwrt-v0.10.5-pistachio-marduk-initramfs-kernel.itb
+* openwrt-v0.10.5-pistachio-marduk-rootfs.tar.gz
+* openwrt-v0.10.5-pistachio-marduk-squashfs-factory.ubi
+* openwrt-v0.10.5-pistachio-marduk-squashfs-sysupgrade.tar
 
 For more details please refer to our [detailed build guide](https://docs.creatordev.io/ci40/guides/openwrt-platform/#building-openwrt)
 and the [OpenWrt build system wiki]("http://wiki.openwrt.org/doc/howto/build").
