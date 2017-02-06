@@ -1,0 +1,53 @@
+#!/bin/sh /etc/rc.common
+#
+# Copyright (C) 2017 OpenWrt.org
+#
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
+#
+
+START=85
+STOP=85
+
+config_bluetooth() {
+	. /lib/functions/mac.sh
+	. /lib/functions/utils.sh
+
+	local IS_BT_RUNNING
+	local timeout=5
+	local time=$(awk -F "." '{print $1}' /proc/uptime | awk '{print $1}')
+	local elap_time=0
+
+	while [ -z "$IS_BT_RUNNING" ]
+	do
+		if [ $elap_time -lt $timeout ]
+		then
+			elap_time=$(elapsed_time $time)
+		else
+			logger " waiting for bluetoothd daemon: bt-config timed out "
+			return 1
+		fi 
+		IS_BT_RUNNING=$(pgrep bluetoothd)
+	done
+	# give some time for the bluetoothd to come up before applying 
+	# configuration
+	sleep 3
+	local MAC=$(get_bluetooth_mac)
+	local BT_ADDR_MASK=10
+	local BT_ADDR=$(echo $MAC | cut -c $BT_ADDR_MASK-)
+	local BT_NAME=Creator-Ci40["$BT_ADDR"]
+	hciconfig hci0 reset &&
+	hciconfig hci0 up &&
+	hciconfig hci0 piscan &&
+	hciconfig hci0 version &&
+	hciconfig hci0 name $BT_NAME || (logger "hciconfig failed" && return 1)
+	hcitool dev	
+}
+
+start(){
+	config_bluetooth
+}
+
+stop(){
+	hciconfig hci0 down
+}

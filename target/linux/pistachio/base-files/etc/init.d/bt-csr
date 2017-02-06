@@ -139,22 +139,28 @@ EOF
 		}
 
 	fi
-
-# Configure HCI and get some version info
-	BT_ADDR_MASK=10
-	hciconfig hci0 reset &&\
-	hciconfig hci0 up &&\
-	hciconfig hci0 piscan &&\
-	hciconfig hci0 version &&\
-	BT_ADDR=$(echo $MAC | cut -c $BT_ADDR_MASK-) &&\
-	BT_NAME="Creator-Ci40["$BT_ADDR"]" &&\
-	hciconfig hci0 name $BT_NAME &&\
-	hcitool dev || (echo  "Failed to configure" && exit 1)
-
 }
 
+
 start() {
+	. /lib/functions/utils.sh
+
 	echo  "Starting Bluetooth..."
+	local timeout=5
+	local time=$(awk -F "." '{print $1}' /proc/uptime | awk '{print $1}')
+	local elap_time=0
+
+	while ! lsmod | grep -q hci_uart
+	do
+		if [ $elap_time -lt $timeout ]
+		then
+			elap_time=$(elapsed_time $time)
+		else
+			logger " waiting for hci_uart module: bt-csr timed out "
+			return 1
+		fi
+	done
+	sleep 2
 	reset_csr && sleep 1 && n_reset_csr && bringup_csr& 
 }
 
