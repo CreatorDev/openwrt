@@ -262,6 +262,10 @@
 	drive-strength = <2>;
 };
 
+&pin_sdhost_data {
+	pins = "mfio17", "mfio18", "mfio19", "mfio20";
+};
+
 &sdhost {
 	status = "okay";
 	bus-width = <1>;
