@@ -47,7 +47,7 @@ proto_lowpan_teardown() {
 	local iface="$2"
 
 	local ifname
-	json_get_var ifname
+	json_get_var ifname ifname
 
 	local id=${ifname##*[[:alpha:]]}
 	local interface="$cfg$id" # i.e wpan0
