@@ -217,6 +217,7 @@ node('boardfarm') {
         sh 'echo "route add default gw 192.168.0.1" > /dev/ttyUSB0'
         sh 'sleep 10'
         sh 'echo "sed -i \'$ a nameserver 8.8.4.4\' /etc/resolv.conf" > /dev/ttyUSB0'
+        sh 'echo "sed -i \'/signature/d\' /etc/opkg.conf" > /dev/ttyUSB0'
         sh 'sleep 10'
 
         sh "sshpass -p 'root' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
