@@ -64,6 +64,7 @@ define Device/linksys-audi
   IMAGES := factory.bin sysupgrade.tar
   IMAGE/factory.bin := append-kernel $$$$(KERNEL_SIZE) | append-ubi
   IMAGE/sysupgrade.tar := sysupgrade-nand
+  UBINIZE_OPTS := -E 5
 endef
 
 define Device/linksys-viper
@@ -77,6 +78,7 @@ define Device/linksys-viper
   IMAGES := factory.bin sysupgrade.tar
   IMAGE/factory.bin := append-kernel $$$$(KERNEL_SIZE) | append-ubi
   IMAGE/sysupgrade.tar := sysupgrade-nand
+  UBINIZE_OPTS := -E 5
 endef
 
 define Build/append-dtb
