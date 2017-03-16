@@ -73,7 +73,7 @@ node('docker && imgtec') {  // Only run on internal slaves as build takes a lot 
             // Package server config
             if (params.VERSION) {
                 echo 'Updating server location for package downloads'
-                sh "sed -i '/^CONFIG_VERSION_REPO/s/latest/ci40-${params.VERSION}/' .config"
+                sh "sed -i '/^CONFIG_VERSION_REPO/s/latest/${params.VERSION}/' .config"
             }
 
             // Add development config
