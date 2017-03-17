@@ -1,12 +1,12 @@
 #!/bin/sh
 
 pistachio_board_detect() {
-        name=`grep "^machine" /proc/cpuinfo | sed "s/machine.*: IMG \(.*\)/\1/g" | sed "s/\(.*\) - .*/\1/g"`
+        board_name=`grep "^machine" /proc/cpuinfo | sed "s/machine.*: IMG \(.*\)/\1/g" | awk '{print tolower($1)"_"$NF}'`
         model=`grep "^machine" /proc/cpuinfo | sed "s/machine.*: \(.*\)/\1/g" | sed "s/.* - \(.*\)/\1/g"`
-        [ -z "$name" ] && name="unknown"
+        [ -z "$board_name" ] && board_name="unknown"
         [ -z "$model" ] && model="unknown"
         [ -e "/tmp/sysinfo/" ] || mkdir -p "/tmp/sysinfo/"
-        echo $name > /tmp/sysinfo/board_name
+        echo $board_name > /tmp/sysinfo/board_name
         echo $model > /tmp/sysinfo/model
 }
 
